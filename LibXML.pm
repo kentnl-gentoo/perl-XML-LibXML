@@ -1,4 +1,4 @@
-# $Id$
+# $Id: LibXML.pm,v 1.2 2001/05/18 11:16:19 matt Exp $
 
 package XML::LibXML;
 
