@@ -622,7 +622,7 @@ LibXML_init_parser( SV * self ) {
     HV* real_obj = NULL;
     SV** item    = NULL;
     SV*  item2   = NULL;
-    /* xmlInitParser(); */ /* useless call */
+    xmlInitParser();
     xmlGetWarningsDefaultValue = 0;
 
     if ( self != NULL ) {
@@ -783,6 +783,8 @@ LibXML_cleanup_parser() {
     if (LibXML_old_ext_ent_loader != NULL ) {
         xmlSetExternalEntityLoader( (xmlExternalEntityLoader)LibXML_old_ext_ent_loader );
     }
+
+    xmlCleanupParser();
 }
 
 void
