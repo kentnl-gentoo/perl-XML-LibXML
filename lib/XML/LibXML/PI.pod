@@ -8,7 +8,7 @@ XML::LibXML::PI - XML::LibXML Processing Instructions
 
   use XML::LibXML;
   # Only methods specific to Processing Instruction nodes are listed here,
-  # see XML::LibXML::Node manpage for other methods
+  # see the XML::LibXML::Node manpage for other methods
 
   $pinode->setData( $data_string );
   $pinode->setData( name=>string_value [...] );

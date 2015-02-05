@@ -8,7 +8,7 @@ XML::LibXML::CDATASection - XML::LibXML Class for CDATA Sections
 
   use XML::LibXML;
   # Only methods specific to CDATA nodes are listed here,
-  # see XML::LibXML::Node manpage for other methods
+  # see the XML::LibXML::Node manpage for other methods
 
   $node = XML::LibXML::CDATASection->new( $content );
 

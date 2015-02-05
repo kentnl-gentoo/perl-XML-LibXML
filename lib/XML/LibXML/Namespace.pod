@@ -8,7 +8,7 @@ XML::LibXML::Namespace - XML::LibXML Namespace Implementation
 
   use XML::LibXML;
   # Only methods specific to Namespace nodes are listed here,
-  # see XML::LibXML::Node manpage for other methods
+  # see the XML::LibXML::Node manpage for other methods
 
   my $ns = XML::LibXML::Namespace->new($nsURI);
   print $ns->nodeName();

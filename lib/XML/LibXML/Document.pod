@@ -8,7 +8,7 @@ XML::LibXML::Document - XML::LibXML DOM Document Class
 
   use XML::LibXML;
   # Only methods specific to Document nodes are listed here,
-  # see XML::LibXML::Node manpage for other methods
+  # see the XML::LibXML::Node manpage for other methods
 
   $dom = XML::LibXML::Document->new( $version, $encoding );
   $dom = XML::LibXML::Document->createDocument( $version, $encoding );
