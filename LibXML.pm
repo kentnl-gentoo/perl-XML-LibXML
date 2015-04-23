@@ -29,7 +29,7 @@ use XML::LibXML::XPathContext;
 use IO::Handle; # for FH reads called as methods
 
 BEGIN {
-$VERSION = "2.0118"; # VERSION TEMPLATE: DO NOT CHANGE
+$VERSION = "2.0119"; # VERSION TEMPLATE: DO NOT CHANGE
 $ABI_VERSION = 2;
 require Exporter;
 require DynaLoader;
@@ -396,8 +396,11 @@ sub _clone {
       line_numbers => $self->{XML_LIBXML_LINENUMBERS},
       base_uri => $self->{XML_LIBXML_BASE_URI},
       gdome => $self->{XML_LIBXML_GDOME},
-      set_parser_flags => $self->{XML_LIBXML_PARSER_OPTIONS},
     });
+  # The parser options may contain some options that were zeroed from the
+  # defaults so set_parser_flags won't work here. We need to assign them
+  # explicitly.
+  $new->{XML_LIBXML_PARSER_OPTIONS} = $self->{XML_LIBXML_PARSER_OPTIONS};
   $new->input_callbacks($self->input_callbacks());
   return $new;
 }
