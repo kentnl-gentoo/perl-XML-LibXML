@@ -22,7 +22,7 @@
         </authorgroup>
 
 
-        <edition>2.0121</edition>
+        <edition>2.0122</edition>
         <copyright>
             <year>2001-2007</year>
             <holder>AxKit.com Ltd</holder>
@@ -2670,7 +2670,7 @@ print {$out_fh} $doc-&gt;toString;</programlisting>
 
                 <listitem>
                     <funcsynopsis>
-                        <funcsynopsisinfo>$element = $dom-&gt;createElementNS( $namespaceURI, $qname );</funcsynopsisinfo>
+                        <funcsynopsisinfo>$element = $dom-&gt;createElementNS( $namespaceURI, $nodename );</funcsynopsisinfo>
                     </funcsynopsis>
 
                     <para>This function creates a new Element Node bound to the DOM with the name <function>$nodename</function> and placed in the given
