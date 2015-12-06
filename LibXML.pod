@@ -459,8 +459,8 @@ XML::LibXML provides two functions to export or import GDOME nodes:
 import_GDOME() and export_GDOME(). Both function have two parameters: the node
 and a flag for recursive import. The flag works as in cloneNode().
 
-The two functions allow to export and import XML::GDOME nodes explicitly,
-however, XML::LibXML allows also the transparent import of XML::GDOME nodes in
+The two functions allow one to export and import XML::GDOME nodes explicitly,
+however, XML::LibXML also allows the transparent import of XML::GDOME nodes in
 functions such as appendChild(), insertAfter() and so on. While native nodes
 are automatically adopted in most functions XML::GDOME nodes are always cloned
 in advance. Thus if the original node is modified after the operation, the node

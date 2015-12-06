@@ -14,7 +14,7 @@ use strict;
 use warnings;
 
 use vars qw ($VERSION);
-$VERSION = "2.0122"; # VERSION TEMPLATE: DO NOT CHANGE
+$VERSION = "2.0123"; # VERSION TEMPLATE: DO NOT CHANGE
 
 use 5.008_000;
 
@@ -140,7 +140,9 @@ our %_preserve_flag;
     }
     elsif ( defined $args{string} ) {
       $self = $class->_newForString( $args{string}, $URI, $encoding, $options );
-      $string_pool{$self} = \$args{string};
+      if (defined($self)) {
+        $string_pool{$self} = \$args{string};
+      }
     }
     elsif ( defined $args{IO} ) {
       $self = $class->_newForIO( $args{IO}, $URI, $encoding, $options  );

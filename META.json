@@ -4,7 +4,7 @@
       "Petr Pajas"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 7.0401, CPAN::Meta::Converter version 2.150005",
+   "generated_by" : "ExtUtils::MakeMaker version 7.1, CPAN::Meta::Converter version 2.150005",
    "keywords" : [
       "dom",
       "html",
@@ -68,6 +68,6 @@
          "url" : "https://bitbucket.org/shlomif/perl-xml-libxml"
       }
    },
-   "version" : "2.0122",
+   "version" : "2.0123",
    "x_serialization_backend" : "JSON::PP version 2.27300"
 }

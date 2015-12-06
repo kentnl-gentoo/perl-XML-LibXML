@@ -45,8 +45,9 @@ are easier to program than event-based parser (SAX) and much more lightweight
 than tree-based parser (DOM), which load the complete tree into memory.
 
 The Reader acts as a cursor going forward on the document stream and stopping
-at each node in the way. At every point DOM-like methods of the Reader object
-allow to examine the current node (name, namespace, attributes, etc.)
+at each node on the way. At every point, the DOM-like methods of the Reader
+object allow one to examine the current node (name, namespace, attributes,
+etc.)
 
 The user's code keeps control of the progress and simply calls the C<<<<<< read() >>>>>> function repeatedly to progress to the next node in the document order. Other
 functions provide means for skipping complete sub-trees, or nodes until a
