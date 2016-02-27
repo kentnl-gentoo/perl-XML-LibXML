@@ -68,6 +68,6 @@
          "url" : "https://bitbucket.org/shlomif/perl-xml-libxml"
       }
    },
-   "version" : "2.0123",
+   "version" : "2.0124",
    "x_serialization_backend" : "JSON::PP version 2.27300"
 }
