@@ -50,7 +50,7 @@ no_network
 {
   my $p = XML::LibXML->new();
   for my $opt (@all) {
-    my $ret = (($opt =~ /^(?:load_ext_dtd|expand_entities)$/) ? 1 : 0);
+    my $ret = (($opt =~ /^(?:load_ext_dtd)$/) ? 1 : 0);
     # TEST*$all
     ok(
         ($p->get_option($opt)||0) == $ret
@@ -110,7 +110,7 @@ no_network
   ok( $p->get_option('recover') == 2, ' TODO : Add test name' );
 
   # TEST
-  ok( $p->expand_entities() == 1, ' TODO : Add test name' );
+  ok( $p->expand_entities() == 0, ' TODO : Add test name' );
   # TEST
   ok( $p->load_ext_dtd() == 1, ' TODO : Add test name' );
   $p->load_ext_dtd(0);

@@ -261,7 +261,7 @@ use constant {
   HTML_PARSE_NOERROR  => (1<<5),       # suppress error reports
 };
 
-$XML_LIBXML_PARSE_DEFAULTS = ( XML_PARSE_NODICT | XML_PARSE_DTDLOAD | XML_PARSE_NOENT );
+$XML_LIBXML_PARSE_DEFAULTS = ( XML_PARSE_NODICT | XML_PARSE_DTDLOAD );
 
 # this hash is made global so that applications can add names for new
 # libxml2 parser flags as temporary workaround
