@@ -52,7 +52,7 @@ extern "C" {
 typedef struct {
     SV * parser;
     xmlNodePtr ns_stack;
-    xmlSAXLocator * locator;
+    HV * locator;
     xmlDocPtr ns_stack_root;
     SV * handler;
     SV * saved_error;
@@ -364,6 +364,12 @@ PmmSAXCloseContext( xmlParserCtxtPtr ctxt )
 
     xmlFreeDoc( vec->ns_stack_root );
     vec->ns_stack_root = NULL;
+
+    if ( vec->locator != NULL ) {
+        SvREFCNT_dec( vec->locator );
+        vec->locator = NULL;
+    }
+
     xmlFree( vec );
     ctxt->_private = NULL;
 }
@@ -563,6 +569,8 @@ PmmAddNamespace( PmmSAXVectorPtr sax, const xmlChar * name,
     PSaxStartPrefix( sax, name, href, handler );
 }
 
+#define XML_STR_NOT_EMPTY(s) ((s)[0] != 0)
+
 HV *
 PmmGenElementSV( pTHX_ PmmSAXVectorPtr sax, const xmlChar * name )
 {
@@ -572,7 +580,7 @@ PmmGenElementSV( pTHX_ PmmSAXVectorPtr sax, const xmlChar * name )
 
     xmlNsPtr ns = NULL;
 
-    if ( name != NULL && xmlStrlen( name )  ) {
+    if ( name != NULL && XML_STR_NOT_EMPTY( name )  ) {
         (void) hv_store(retval, "Name", 4,
                  _C2Sv(name, NULL), NameHash);
 
@@ -659,7 +667,7 @@ PmmGenAttributeHashSV( pTHX_ PmmSAXVectorPtr sax,
             name = *ta;  ta++;
             value = *ta; ta++;
 
-            if ( name != NULL && xmlStrlen( name ) ) {
+            if ( name != NULL && XML_STR_NOT_EMPTY( name ) ) {
                 localname = xmlSplitQName(NULL, name, &prefix);
 
                 (void) hv_store(atV, "Name", 4,
@@ -757,7 +765,7 @@ PmmGenCharDataSV( pTHX_ PmmSAXVectorPtr sax, const xmlChar * data, int len )
 {
     HV * retval = newHV();
 
-    if ( data != NULL && xmlStrlen( data ) ) {
+    if ( data != NULL && XML_STR_NOT_EMPTY( data ) ) {
         (void) hv_store(retval, "Data", 4,
                  _C2Sv_len(data, len), DataHash);
     }
@@ -772,11 +780,11 @@ PmmGenPISV( pTHX_ PmmSAXVectorPtr sax,
 {
     HV * retval = newHV();
 
-    if ( target != NULL && xmlStrlen( target ) ) {
+    if ( target != NULL && XML_STR_NOT_EMPTY( target ) ) {
         (void) hv_store(retval, "Target", 6,
                  _C2Sv(target, NULL), TargetHash);
 
-        if ( data != NULL && xmlStrlen( data ) ) {
+        if ( data != NULL && XML_STR_NOT_EMPTY( data ) ) {
             (void) hv_store(retval, "Data", 4,
                      _C2Sv(data, NULL), DataHash);
         }
@@ -796,19 +804,117 @@ PmmGenDTDSV( pTHX_ PmmSAXVectorPtr sax,
 	     const xmlChar * systemId )
 {
     HV * retval = newHV();
-    if ( name != NULL && xmlStrlen( name ) ) {
+    if ( name != NULL && XML_STR_NOT_EMPTY( name ) ) {
       (void) hv_store(retval, "Name", 4,
 	       _C2Sv(name, NULL), NameHash);
     }
-    if ( publicId != NULL && xmlStrlen( publicId ) ) {
+    if ( publicId != NULL && XML_STR_NOT_EMPTY( publicId ) ) {
       (void) hv_store(retval, "PublicId", 8,
 	       _C2Sv(publicId, NULL), PublicIdHash);
     }
-    if ( systemId != NULL && xmlStrlen( systemId ) ) {
+    if ( systemId != NULL && XML_STR_NOT_EMPTY( systemId ) ) {
       (void) hv_store(retval, "SystemId", 8,
 	       _C2Sv(systemId, NULL), SystemIdHash);
     }
     return retval;
+}
+
+HV *
+PmmGenLocator( xmlSAXLocatorPtr loc)
+{
+    dTHX;
+    HV * locator = newHV();
+
+    const xmlChar * PublicId = loc->getPublicId(NULL);
+    const xmlChar * SystemId = loc->getSystemId(NULL);
+
+    if ( PublicId != NULL && XML_STR_NOT_EMPTY( PublicId ) ) {
+      (void) hv_store(locator, "PublicId", 8,
+           newSVpv((char *)PublicId, 0), 0);
+    }
+
+    if ( SystemId != NULL && XML_STR_NOT_EMPTY( SystemId ) ) {
+      (void) hv_store(locator, "SystemId", 8,
+           newSVpv((char *)SystemId, 0), 0);
+    }
+
+    return locator;
+}
+
+
+void
+PmmUpdateLocator( xmlParserCtxtPtr ctxt )
+{
+    PmmSAXVectorPtr sax = (PmmSAXVectorPtr)ctxt->_private;
+
+    if (sax->locator == NULL) {
+        return;
+    }
+
+    dTHX;
+
+    (void) hv_store(sax->locator, "LineNumber", 10,
+         newSViv(ctxt->input->line), 0);
+
+    (void) hv_store(sax->locator, "ColumnNumber", 12,
+         newSViv(ctxt->input->col), 0);
+
+    const xmlChar * encoding = ctxt->input->encoding;
+    const xmlChar * version = ctxt->input->version;
+
+    if ( encoding != NULL && XML_STR_NOT_EMPTY( encoding ) ) {
+      (void) hv_store(sax->locator, "Encoding", 8,
+           newSVpv((char *)encoding, 0), 0);
+    }
+
+    if ( version != NULL && XML_STR_NOT_EMPTY( version ) ) {
+      (void) hv_store(sax->locator, "XMLVersion", 10,
+           newSVpv((char *)version, 0), 0);
+    }
+}
+
+int
+PSaxSetDocumentLocator(void *ctx, xmlSAXLocatorPtr loc)
+{
+    xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+    PmmSAXVectorPtr  sax  = (PmmSAXVectorPtr)ctxt->_private;
+    dTHX;
+    HV* empty;
+    SV * handler          = sax->handler;
+    SV * rv;
+
+    dSP;
+
+    if (sax->joinchars)
+    {
+        PSaxCharactersFlush(ctxt, sax->charbuf);
+    }
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP) ;
+
+    XPUSHs(handler);
+
+    sax->locator = PmmGenLocator(loc);
+
+    rv = newRV_inc((SV*)sax->locator);
+    XPUSHs( rv);
+
+    PUTBACK;
+
+    call_method( "set_document_locator", G_SCALAR | G_EVAL | G_DISCARD );
+    sv_2mortal(rv) ;
+
+    if (SvTRUE(ERRSV)) {
+        croak_obj;
+    }
+
+    FREETMPS ;
+    LEAVE ;
+    CLEAR_SERROR_HANDLER
+    return 1;
 }
 
 int
@@ -822,6 +928,8 @@ PSaxStartDocument(void * ctx)
 
     SV * rv;
     if ( handler != NULL ) {
+
+        PmmUpdateLocator(ctx);
 
         dSP;
 
@@ -889,6 +997,8 @@ PSaxEndDocument(void * ctx)
     dTHX;
     dSP;
 
+    PmmUpdateLocator(ctx);
+
     if (sax->joinchars)
     {
         PSaxCharactersFlush(ctxt, sax->charbuf);
@@ -926,6 +1036,8 @@ PSaxStartElement(void *ctx, const xmlChar * name, const xmlChar** attr)
     SV * arv;
 
     dSP;
+
+    PmmUpdateLocator(ctx);
 
     if (sax->joinchars)
     {
@@ -977,6 +1089,8 @@ PSaxEndElement(void *ctx, const xmlChar * name) {
     HV * element;
 
     dSP;
+
+    PmmUpdateLocator(ctx);
 
     if (sax->joinchars)
     {
@@ -1079,6 +1193,8 @@ int PSaxCharacters (void *ctx, const xmlChar * ch, int len) {
     xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
     PmmSAXVectorPtr sax = (PmmSAXVectorPtr)ctxt->_private;
 
+    PmmUpdateLocator(ctx);
+
     if (sax->joinchars) {
         struct CBuffer *buffer = sax->charbuf;
         CBufferAppend(buffer, ch, len);
@@ -1095,6 +1211,8 @@ PSaxComment(void *ctx, const xmlChar * ch) {
     dTHX;
     HV* element;
     SV * handler = sax->handler;
+
+    PmmUpdateLocator(ctx);
 
     SV * rv = NULL;
 
@@ -1138,6 +1256,8 @@ PSaxCDATABlock(void *ctx, const xmlChar * ch, int len) {
     xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
     PmmSAXVectorPtr sax = (PmmSAXVectorPtr)ctxt->_private;
     dTHX;
+
+    PmmUpdateLocator(ctx);
 
     HV* element;
     SV * handler = sax->handler;
@@ -1209,6 +1329,8 @@ PSaxProcessingInstruction( void * ctx, const xmlChar * target, const xmlChar * d
     dTHX;
     SV * handler          = sax->handler;
 
+    PmmUpdateLocator(ctx);
+
     SV * element;
     SV * rv = NULL;
 
@@ -1253,6 +1375,8 @@ void PSaxExternalSubset (void * ctx,
 {
     xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
     PmmSAXVectorPtr sax   = (PmmSAXVectorPtr)ctxt->_private;
+    PmmUpdateLocator(ctx);
+
     dTHX;
     SV * handler          = sax->handler;
 
@@ -1523,6 +1647,8 @@ PSaxGetHandler()
 {
     xmlSAXHandlerPtr retval = (xmlSAXHandlerPtr)xmlMalloc(sizeof(xmlSAXHandler));
     memset(retval, 0, sizeof(xmlSAXHandler));
+
+    retval->setDocumentLocator = (setDocumentLocatorSAXFunc)&PSaxSetDocumentLocator;
 
     retval->startDocument = (startDocumentSAXFunc)&PSaxStartDocument;
 

@@ -1,5 +1,14 @@
 Revision history for Perl extension XML::LibXML
 
+2.0129  2017-03-14
+    - Add example/create-sample-html-document.pl .
+        - https://rt.cpan.org/Ticket/Display.html?id=117923
+    - Add support for the set_document_locator() SAX method .
+        - Thanks to Alexander Batyrshin for the pull-request.
+    - Make parsing of large perl strings much faster.
+        - https://github.com/shlomif/perl-XML-LibXML/pull/5
+        - Thanks to Cedric Cellier for the pull-request.
+
 2.0128  2016-07-24
     - Hopefully add the .pod files again as they were missing from 2.0127.
         - https://github.com/shlomif/perl-XML-LibXML/issues/3
@@ -29,7 +38,7 @@ Revision history for Perl extension XML::LibXML
 2.0125  2016-05-30
     - Moved the repository from Mercurial and BitBucket to Git and GitHub:
         - https://github.com/shlomif/perl-XML-LibXML
-        - This was done to better encourage contributions to XML::LiBXML and
+        - This was done to better encourage contributions to XML::LibXML and
         to be able to use the better Continuous Integration options that
         are available for GitHub projects.
 
